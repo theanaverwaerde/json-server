@@ -64,10 +64,12 @@ You done!
 
 `json-server [arguments] <file> [file...]`
 
-| Parameter     | Operation               | Default |
-|---------------|-------------------------|---------|
-| `-port <int>` | Which port to listen on | 8080    |
-| `-help`       | Show help               |         |
+| Parameter         | Operation                              | Default |
+|-------------------|----------------------------------------|---------|
+| `-port <int>`     | Which port to listen on                | 8080    |
+| `-page <string>`  | Name of page parameter                 | page    |
+| `-limit <string>` | Name of limit parameter (ex. per_page) | limit   |
+| `-help`           | Show help                              |         |
 
 ## Build your json
 
@@ -88,3 +90,15 @@ You done!
     },
 }
 ```
+
+## TODO
+- [x] Load Json & add GET route
+- [ ] Pagination (Page, Limit)
+- [ ] Pagination (Start, End)
+- [ ] Sort
+- [ ] Select Id
+- [ ] Hot Reload
+- [ ] POST
+- [ ] PUT
+- [ ] DELETE
+- [ ] Modification on file

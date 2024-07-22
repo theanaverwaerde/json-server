@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"strconv"
 
 	"fmt"
 	"net/http"
@@ -14,6 +15,8 @@ import (
 
 var helpFlag = flag.Bool("help", false, "Show this")
 var portFlag = flag.Int("port", 8080, "Which port to listen on")
+var pageFlag = flag.String("page", "page", "Name of page parameter")
+var limitFlag = flag.String("limit", "limit", "Name of limit parameter")
 
 func main() {
 	flag.Parse()
@@ -63,15 +66,61 @@ func main() {
 		for key, value := range payload {
 			fmt.Println("GET", fmt.Sprintf("http://localhost:%v/%v", *portFlag, key))
 
-			r.GET(key, making(&value))
+			r.GET(key, making(value))
 		}
 	}
 
 	r.Run(fmt.Sprintf(":%v", *portFlag))
 }
 
-func making(value *interface{}) func(c *gin.Context) {
-	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, value)
+func making(value interface{}) func(c *gin.Context) {
+
+	var havePagination bool = false
+	var mainArray []interface{}
+
+	if isArrayOrSlice(value) {
+		havePagination = true
+		mainArray = value.([]interface{})
 	}
+
+	return func(c *gin.Context) {
+		result := value
+
+		if havePagination {
+			limit, exist := QueryToInt(c, *limitFlag)
+			if exist {
+				page, exist := QueryToInt(c, *pageFlag)
+				if exist {
+					start := min((page - 1) * limit, len(mainArray))
+					end := min(start + limit, len(mainArray))
+					result = mainArray[start:end]
+				}
+			}
+		}
+
+		c.JSON(http.StatusOK, result)
+	}
+}
+
+func isArrayOrSlice(x interface{}) bool {
+	switch x.(type) {
+	case []interface{}:
+		return true
+	default:
+		return false
+	}
+}
+
+func QueryToInt(c *gin.Context, key string) (int, bool) {
+	if !c.Request.URL.Query().Has(key) {
+		return 0, false
+	}
+
+	query := c.Query(key)
+	value, err := strconv.Atoi(query)
+	if err != nil {
+		return 0, false
+	}
+
+	return value, true
 }
