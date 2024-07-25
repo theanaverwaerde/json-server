@@ -18,8 +18,8 @@ Create a db.json file
 ```
 
 Run the server 
-```
-json-server db.json
+```bash
+./json-server db.json
 ```
 
 Go on http://localhost:8080/languages
@@ -71,17 +71,18 @@ You done!
 | `-limit <string>` | Name of limit parameter (ex. per_page) | limit   |
 | `-help`           | Show help                              |         |
 
-## Build your json
+## How to use
+### Build your json
 
 ```json
 {
-    "your/route/here": {
+    "your/simple/route": {
         // Your body
     },
-    "another/route/here": [
+    "your/array/route": [
         // Your array without context
     ],
-    "your/route/here": {
+    "your/context/route": {
         // Your context
         "count": 0,
         "data": [
@@ -91,9 +92,20 @@ You done!
 }
 ```
 
+### Use pagination
+
+When you GET a route you can add `?page=1&limit=50`
+
+`page` query name can be change with `-page query_name`  
+`limit` query name can be change with `-limit query_name` (example `-limit per_page`)
+
+If you route send an array your pagination apply globally
+If you have a context and an array your pagination apply on the first array found in your route
+
+
 ## TODO
 - [x] Load Json & add GET route
-- [ ] Pagination (Page, Limit)
+- [x] Pagination (Page, Limit)
 - [ ] Pagination (Start, End)
 - [ ] Sort
 - [ ] Select Id

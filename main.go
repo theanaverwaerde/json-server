@@ -76,24 +76,41 @@ func main() {
 func making(value interface{}) func(c *gin.Context) {
 
 	var havePagination bool = false
-	var mainArray []interface{}
+	var baseArray []interface{}
+	var arrayPath string
+	var valueMap map[string]interface{}
 
 	if isArrayOrSlice(value) {
 		havePagination = true
-		mainArray = value.([]interface{})
+		baseArray = value.([]interface{})
+	} else {
+		valueMap = value.(map[string]interface{})
+
+		for key, value := range valueMap {
+			if isArrayOrSlice(value) {
+				havePagination = true
+				baseArray = value.([]interface{})
+				arrayPath = key
+				break
+			}
+		}
 	}
 
 	return func(c *gin.Context) {
-		result := value
-
+		var result interface{} = value
 		if havePagination {
 			limit, exist := QueryToInt(c, *limitFlag)
 			if exist {
 				page, exist := QueryToInt(c, *pageFlag)
 				if exist {
-					start := min((page - 1) * limit, len(mainArray))
-					end := min(start + limit, len(mainArray))
-					result = mainArray[start:end]
+					start := min((page - 1) * limit, len(baseArray))
+					end := min(start + limit, len(baseArray))
+					result = baseArray[start:end]
+
+					if len(arrayPath) > 0 {
+						valueMap[arrayPath] = result
+						result = valueMap
+					}
 				}
 			}
 		}
